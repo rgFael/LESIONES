@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DIAGNÓSTICO DE CURACIÓN</title>
+
+    <!-- Carga de Tailwind CSS -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuración de fuente Inter y estilos dinámicos -->
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+            transition: background-color 0.5s ease;
+
+        }
+
+        /* --- TEMAS DINÁMICOS POR MODO (Base: Modo 1) --- */
+
+        /* Modo 1 (Por defecto/Primera Revisión) - Ambiente Limpio */
+
+        body { background-color: #0f172a; } /* Slate-900 */
+
+        .app-container {
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border: 1px solid rgba(20, 184, 166, 0.3); /* Teal */
+
+            box-shadow: 0 20px 50px rgba(100, 200, 250, 0.3);
+
+            backdrop-filter: blur(12px);
+
+        }
+
+        .app-container .title-color { color: #2dd4bf; } /* Teal-400 */
+
+        .app-container .border-mode { border-color: #2dd4bf; }
+
+        .app-container .bg-mode { background-color: rgba(45, 212, 191, 0.1); }
+
+        .app-container .btn-mode {
+
+            background: linear-gradient(135deg, #06b6d4, #14b8a6); /* Cian a Teal */
+
+            border-bottom: 6px solid #0e7490;
+
+        }
+
+        .app-container .btn-mode:active { border-bottom: 3px solid #0e7490; }
+
+        /* Modo 2 (Segunda Revisión) - Ambiente de Precaución (Amarillo/Naranja) */
+
+        .mode-second { background-color: #1c1917; } /* Stone-950 */
+
+        .mode-second .app-container {
+
+            background: rgba(255, 255, 255, 0.08);
+
+            border: 2px solid rgba(251, 191, 36, 0.6); /* Amber */
+
+            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.3);
+
+        }
+
+        .mode-second .title-color { color: #facc15; } /* Amber-400 */
+
+        .mode-second .border-mode { border-color: #facc15; }
+
+        .mode-second .bg-mode { background-color: rgba(251, 191, 36, 0.1); }
+
+        .mode-second .btn-mode {
+
+            background: linear-gradient(135deg, #f97316, #facc15); /* Naranja a Amarillo */
+
+            border-bottom: 6px solid #b45309;
+
+        }
+
+        .mode-second .btn-mode:active { border-bottom: 3px solid #b45309; }
+
+        /* Modo 3 (Crónica) - Ambiente de Máxima Tensión (Rojo/Negro) */
+
+        .mode-chronic { background-color: #450a0a; } /* Red-950 */
+
+        .mode-chronic .app-container {
+
+            background: rgba(0, 0, 0, 0.5);
+
+            border: 3px solid rgba(239, 68, 68, 0.8); /* Red */
+
+            box-shadow: 0 20px 50px rgba(239, 68, 68, 0.7);
+
+        }
+
+        .mode-chronic .title-color { color: #ef4444; } /* Red-500 */
+
+        .mode-chronic .border-mode { border-color: #ef4444; }
+
+        .mode-chronic .bg-mode { background-color: rgba(239, 68, 68, 0.2); }
+
+        .mode-chronic .btn-mode {
+
+            background: linear-gradient(135deg, #dc2626, #b91c1c); /* Red a Dark Red */
+
+            border-bottom: 6px solid #7f1d1d;
+
+        }
+
+        .mode-chronic .btn-mode:active { border-bottom: 3px solid #7f1d1d; }
+
+        /* --- ESTILOS DE RESULTADO --- */
+
+        .card-result {
+
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+            border: 4px solid transparent;
+
+        }
+
+        
+
+        /* Animación de Bouncing (Pensamiento) */
+
+        .bouncing {
+
+            animation: pulse-border 0.5s infinite alternate;
+
+            transform: scale(1.05);
+
+            box-shadow: 0 10px 20px rgba(244, 63, 94, 0.5);
+
+        }
+
+        /* Estilo de Ganador (Curación Exitosa: Verde) */
+
+        .winner {
+
+            border-color: #10b981 !important; /* Verde esmeralda */
+
+            transform: scale(1.1);
+
+            box-shadow: 0 25px 40px rgba(16, 185, 129, 0.7);
+
+            background-color: #166534 !important;
+
+            color: #ecfdf5;
+
+        }
+
+        /* Estilo de Perdedor Crónico (NO Curado/Crónico: Rojo) */
+
+        .loser {
+
+            border-color: #ef4444 !important; /* Rojo fuerte */
+
+            transform: scale(1.1);
+
+            box-shadow: 0 25px 40px rgba(239, 68, 68, 0.7);
+
+            background-color: #991b1b !important;
+
+            color: #fef2f2;
+
+        }
+
+        @keyframes pulse-border {
+
+            from { border-color: #f43f5e; box-shadow: 0 0 10px #f43f5e; }
+
+            to { border-color: #f87171; box-shadow: 0 0 20px #f87171; }
+
+        }
+
+        /* Estilos personalizados para el slider (ROJO (no curación) -> VERDE (curación)) */
+
+        input[type=range] {
+
+            -webkit-appearance: none;
+
+            width: 100%;
+
+            height: 10px;
+
+            background: linear-gradient(to right, #ef4444 0%, #facc15 50%, #22c55e 100%);
+
+            border-radius: 5px;
+
+            outline: none;
+
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+
+            -webkit-appearance: none;
+
+            appearance: none;
+
+            width: 24px;
+
+            height: 24px;
+
+            border-radius: 50%;
+
+            background: #e0f2f1;
+
+            cursor: pointer;
+
+            box-shadow: 0 0 5px rgba(0,0,0,0.4);
+
+            border: 3px solid #06b6d4;
+
+            transition: border-color 0.5s ease; /* Transición para el borde del thumb */
+
+        }
+
+        
+
+        /* Ajuste de color del thumb del slider según el modo */
+
+        .mode-second input[type=range]::-webkit-slider-thumb { border-color: #f97316; }
+
+        .mode-chronic input[type=range]::-webkit-slider-thumb { border-color: #dc2626; }
+
+    </style>
+
+    <!-- Firebase Imports (Boilerplate necesario) -->
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        import { getFirestore, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        if (firebaseConfig) {
+
+            setLogLevel('Debug');
+
+            const app = initializeApp(firebaseConfig);
+
+            const auth = getAuth(app);
+
+            const db = getFirestore(app);
+
+            onAuthStateChanged(auth, (user) => {
+
+                if (!user) {
+
+                    signInAnonymously(auth).catch(e => console.error("Error al iniciar sesión anónima:", e));
+
+                }
+
+            });
+
+            if (initialAuthToken) {
+
+                signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Error de autenticación con token:", e));
+
+            } else if (!auth.currentUser) {
+
+                signInAnonymously(auth).catch(e => console.error("Error al iniciar sesión anónima:", e));
+
+            }
+
+        }
+
+    </script>
+
+</head>
+
+<body class="p-4 flex items-center justify-center min-h-screen">
+
+    <div id="app-container" class="app-container w-full max-w-lg p-6 md:p-10 rounded-3xl shadow-xl transition-all duration-500 ease-in-out">
+
+        
+
+        <!-- Título principal -->
+
+        <h1 class="text-4xl font-black text-white text-center mb-2">
+
+            DIAGNÓSTICO DE RECUPERACIÓN
+
+        </h1>
+
+        <!-- Subtítulo -->
+
+        <p class="text-base font-medium text-white text-center mb-6 title-color">
+
+            ¿Se curó el Pokémon o El entrenador?
+
+        </p>
+
+        <!-- Selector de Modos -->
+
+        <div class="mb-4 p-4 rounded-xl border-mode bg-mode">
+
+            <label for="mode-selector" class="block text-sm font-semibold text-white mb-2 text-center">
+
+                Selecciona la Etapa de Revisión
+
+            </label>
+
+            <select id="mode-selector" onchange="handleModeChange()"
+
+                    class="w-full p-2 rounded-lg text-white border-mode bg-mode focus:ring-current focus:border-current">
+
+                <option value="first">1. Primera Revisión (Normal)</option>
+
+                <option value="second">2. Segunda Revisión (Recaída)</option>
+
+                <option value="chronic">3. ¿Se Hará Crónica la Lesión?</option>
+
+            </select>
+
+        </div>
+
+        <!-- Controles de Probabilidad con Slider (SIEMPRE ACTIVO) -->
+
+        <div id="slider-container" class="mb-6 p-5 rounded-xl border-mode bg-mode shadow-inner">
+
+            <h2 class="text-base font-semibold text-white mb-2 text-center">Probabilidad de "SÍ" (Curación Exitosa)</h2>
+
+            <div class="relative flex items-center justify-between text-white text-sm font-bold mb-3">
+
+                <span class="text-red-400">0% NO Curó</span>
+
+                <span id="prob-si-value" class="text-xl font-extrabold text-yellow-300 tracking-wider">50%</span>
+
+                <span class="text-green-400">100% SÍ Curó</span>
+
+            </div>
+
+            
+
+            <input type="range" id="prob-si-slider" value="50" min="0" max="100" step="1"
+
+                   class="w-full h-2 rounded-lg cursor-pointer">
+
+            <p id="mode-tension-info" class="text-sm text-center text-white mt-2 font-bold"></p>
+
+        </div>
+
+        <!-- Botón de Diagnóstico -->
+
+        <div class="flex justify-center mb-8">
+
+            <button id="simulate-button" onclick="simulateCure()" 
+
+                    class="btn-mode w-full p-4 md:p-5 rounded-xl text-white font-extrabold text-lg uppercase shadow-2xl transition-all duration-200 ease-out transform">
+
+                ¡DIAGNÓSTICO!
+
+            </button>
+
+        </div>
+
+        <!-- Contenedor Principal de Resultados -->
+
+        <div class="flex items-center justify-center space-x-6">
+
+            <!-- Casilla SÍ (Curación Exitosa - Verde) -->
+
+            <div id="card-si" class="card-result w-1/2 p-4 md:p-6 rounded-2xl bg-green-800/20 border-green-500/50 text-center shadow-lg hover:shadow-2xl">
+
+                <p class="text-5xl font-black text-green-400 mb-1">SÍ</p>
+
+                <p id="prob-si-display" class="text-xl font-bold text-green-300">50%</p>
+
+            </div>
+
+            <!-- Casilla NO (Curación Fallida - Rojo) -->
+
+            <div id="card-no" class="card-result w-1/2 p-4 md:p-6 rounded-2xl bg-red-800/20 border-red-500/50 text-center shadow-lg hover:shadow-2xl">
+
+                <p class="text-5xl font-black text-red-400 mb-1">NO</p>
+
+                <p id="prob-no-display" class="text-xl font-bold text-red-300">50%</p>
+
+            </div>
+
+        </div>
+
+        
+
+        <!-- Mensaje de Resultado -->
+
+        <div id="result-message" class="text-center mt-8 p-4 rounded-xl bg-teal-800/50 border border-teal-500 hidden transition-all duration-500">
+
+            <p class="text-lg font-bold text-white"></p>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // Referencias a elementos DOM
+
+        const appContainer = document.getElementById('app-container');
+
+        const modeSelector = document.getElementById('mode-selector');
+
+        const inputProbSi = document.getElementById('prob-si-slider');
+
+        const valueProbSiDisplay = document.getElementById('prob-si-value');
+
+        const displayProbSi = document.getElementById('prob-si-display');
+
+        const displayProbNo = document.getElementById('prob-no-display');
+
+        const cardSi = document.getElementById('card-si');
+
+        const cardNo = document.getElementById('card-no');
+
+        const simulateButton = document.getElementById('simulate-button');
+
+        const resultMessage = document.getElementById('result-message');
+
+        const resultText = resultMessage.querySelector('p');
+
+        const modeTensionInfo = document.getElementById('mode-tension-info');
+
+        let isSimulating = false;
+
+        // Función 1: Restablecer el estado del botón (Lógica Blindada)
+
+        function resetButtonState() {
+
+            isSimulating = false; 
+
+            simulateButton.disabled = false;
+
+            simulateButton.textContent = '¡DIAGNÓSTICO!';
+
+            simulateButton.classList.remove('animate-pulse');
+
+        }
+
+        // Función 2: Manejar cambios de modo y temas
+
+        function handleModeChange() {
+
+            const currentMode = modeSelector.value;
+
+            // 1. Quitar todas las clases de modo
+
+            appContainer.classList.remove('mode-first', 'mode-second', 'mode-chronic');
+
+            document.body.classList.remove('mode-first', 'mode-second', 'mode-chronic');
+
+            
+
+            // 2. Aplicar la clase del modo actual y actualizar info
+
+            if (currentMode === 'first') {
+
+                appContainer.classList.add('mode-first');
+
+                document.body.classList.add('mode-first');
+
+                modeTensionInfo.textContent = 'Modo: Primera revisión (Probabilidad de curarse)';
+
+            } else if (currentMode === 'second') {
+
+                appContainer.classList.add('mode-second');
+
+                document.body.classList.add('mode-second');
+
+                modeTensionInfo.textContent = 'Modo: Segunda revisión (La lesión recayó. ¡Riesgo alto!)';
+
+            } else if (currentMode === 'chronic') {
+
+                appContainer.classList.add('mode-chronic');
+
+                document.body.classList.add('mode-chronic');
+
+                modeTensionInfo.textContent = '¡ALERTA MÁXIMA! La Lesión se puede hacer crónica. Tensión.';
+
+            }
+
+            // 3. Resetear y actualizar displays
+
+            updateProbabilities();
+
+            resetCards();
+
+            resultMessage.classList.add('hidden');
+
+        }
+
+        // Función 3: Actualizar las probabilidades
+
+        function updateProbabilities() {
+
+            const probSi = parseInt(inputProbSi.value) || 0;
+
+            const probNo = 100 - probSi;
+
+            valueProbSiDisplay.textContent = `${probSi}%`;
+
+            displayProbSi.textContent = `${probSi}%`;
+
+            displayProbNo.textContent = `${probNo}%`;
+
+        }
+
+        // Función 4: Resetear estilos de cartas
+
+        function resetCards() {
+
+            cardSi.classList.remove('bouncing', 'winner', 'loser');
+
+            cardNo.classList.remove('bouncing', 'winner', 'loser');
+
+            
+
+            cardSi.classList.add('bg-green-800/20');
+
+            cardNo.classList.add('bg-red-800/20');
+
+            
+
+            cardSi.querySelector('p:first-child').classList.remove('text-white');
+
+            cardNo.querySelector('p:first-child').classList.remove('text-white');
+
+            resultMessage.classList.remove('bg-red-800/50', 'border-red-500', 'bg-green-800/50', 'border-green-500', 'bg-yellow-800/50', 'border-yellow-500');
+
+            resultMessage.classList.add('bg-teal-800/50', 'border-teal-500');
+
+        }
+
+        // Función 5: Determinar el resultado y actualizar la UI (SIN resetear el botón)
+
+        function determineResult(probSi, mode) {
+
+            resetCards();
+
+            const randomNumber = Math.random();
+
+            let winnerCard;
+
+            let message;
+
+            let winnerClass = 'winner';
+
+            let messageBgClass = 'bg-green-800/50 border-green-500';
+
+            if (randomNumber < probSi) {
+
+                // Resultado SÍ (Éxito)
+
+                winnerCard = cardSi;
+
+                
+
+                // Mensajes de ÉXITO (Curado / No Crónico)
+
+                if (mode === 'first') {
+
+                    message = '¡Diagnóstico: SÍ! Curación Exitosa. El descanso ha rendido frutos, ¡de vuelta a la acción!';
+
+                    messageBgClass = 'bg-green-800/50 border-green-500';
+
+                } else if (mode === 'second') {
+
+                    message = '¡TRIUNFO! SÍ, la curación es un hecho. Ha superado la recaída y está al 100%.';
+
+                    messageBgClass = 'bg-green-800/50 border-green-500';
+
+                } else if (mode === 'chronic') {
+
+                    // SÍ significa NO se hizo crónico (Resultado deseado)
+
+                    message = '¡MILAGRO! SÍ, la lesión *NO* se hizo crónica. La pesadilla termina aquí. ¡Es un gran alivio!';
+
+                    messageBgClass = 'bg-yellow-800/50 border-yellow-500'; // Alerta de alivio
+
+                }
+
+            } else {
+
+                // Resultado NO (Fallo)
+
+                winnerCard = cardNo;
+
+                winnerClass = 'loser'; 
+
+                messageBgClass = 'bg-red-800/50 border-red-500';
+
+                // Mensajes de FALLO (No Curado / Crónico)
+
+                if (mode === 'first') {
+
+                    message = '¡Vaya! Diagnóstico: NO. La curación ha fallado. Necesitará otra temporada. Recae a la Segunda Revisión.';
+
+                } else if (mode === 'second') {
+
+                    message = '¡ALARMA! NO ha superado la recaída. La lesión persiste. Ahora debe girar la Ruleta Crónica. ¡Mucha suerte!';
+
+                } else if (mode === 'chronic') {
+
+                    // NO significa SÍ se hizo crónico (El peor resultado)
+
+                    message = '¡CRÓNICA! Diagnóstico: NO. La lesión es crónica. Recaerá con un 20% de probabilidad cada temporada.';
+
+                }
+
+            }
+
+            // Aplicar estilo de ganador/perdedor
+
+            winnerCard.classList.add(winnerClass);
+
+            winnerCard.querySelector('p:first-child').classList.add('text-white');
+
+            
+
+            resultText.textContent = message;
+
+            resultMessage.classList.add(messageBgClass);
+
+            resultMessage.classList.remove('hidden');
+
+        }
+
+        
+
+        // Función principal de simulación (CORREGIDA PARA EVITAR BLOQUEOS)
+
+        function simulateCure() {
+
+            if (isSimulating) return;
+
+            // Bloquear el botón y empezar la animación
+
+            isSimulating = true;
+
+            simulateButton.disabled = true;
+
+            simulateButton.textContent = 'Analizando...';
+
+            simulateButton.classList.add('animate-pulse');
+
+            resultMessage.classList.add('hidden');
+
+            resetCards();
+
+            const currentMode = modeSelector.value;
+
+            const probSi = parseInt(inputProbSi.value) / 100;
+
+            let animationCount = 0;
+
+            const maxAnimations = currentMode === 'chronic' ? 15 : 10; 
+
+            const interval = setInterval(() => {
+
+                resetCards();
+
+                // Alternar la animación entre las tarjetas
+
+                if (animationCount % 2 === 0) {
+
+                    cardSi.classList.add('bouncing');
+
+                } else {
+
+                    cardNo.classList.add('bouncing');
+
+                }
+
+                animationCount++;
+
+                if (animationCount >= maxAnimations) {
+
+                    clearInterval(interval);
+
+                    
+
+                    // USO DE TRY-FINALLY PARA ASEGURAR QUE EL BOTÓN SIEMPRE SE RESTABLEZCA
+
+                    try {
+
+                        determineResult(probSi, currentMode);
+
+                    } catch (error) {
+
+                        console.error("Error en la determinación:", error);
+
+                    } finally {
+
+                        // Esta línea se ejecutará SIEMPRE, haya error o no
+
+                        resetButtonState();
+
+                    }
+
+                }
+
+            }, currentMode === 'chronic' ? 150 : 250);
+
+        }
+
+        // Listeners
+
+        inputProbSi.addEventListener('input', updateProbabilities);
+
+        modeSelector.addEventListener('change', handleModeChange);
+
+        window.onload = handleModeChange;
+
+    </script>
+
+</body>
+
+</html>
+
